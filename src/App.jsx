@@ -344,14 +344,17 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#232134", backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.03), transparent 40%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.025), transparent 45%)", fontFamily: "'Noto Sans JP', sans-serif", color: "#2B2A2E", padding: "24px 12px 60px" }}>
+    <div style={{ minHeight: "100dvh", background: "#232134", backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.03), transparent 40%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.025), transparent 45%)", fontFamily: "'Noto Sans JP', sans-serif", color: "#2B2A2E", padding: "24px 12px 60px", overflowX: "hidden" }}>
       <style>{`
+        html, body { margin: 0; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+        *, *::before, *::after { box-sizing: border-box; }
         .mincho { font-family: 'Shippori Mincho', serif; }
         .stamp-ring { box-shadow: 0 0 0 1.5px #B33A3A, 0 0 0 4px rgba(179,58,58,0.15); }
         @media (prefers-reduced-motion: no-preference) { .day-cell { transition: transform .12s ease; } .day-cell:hover { transform: translateY(-1px); } }
         .focus-ring:focus-visible { outline: 2px solid #C8963E; outline-offset: 2px; }
         .chip-scroll::-webkit-scrollbar { height: 5px; }
         .chip-scroll::-webkit-scrollbar-thumb { background: #DCD2B8; border-radius: 4px; }
+        input, select, textarea { font-size: 16px !important; }
       `}</style>
 
       <div style={{ maxWidth: 880, margin: "0 auto" }}>

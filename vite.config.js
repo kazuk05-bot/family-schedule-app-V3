@@ -5,5 +5,5 @@ import react from "@vitejs/plugin-react";
 // 例: https://your-github-name.github.io/family-schedule-app/ の場合 → '/family-schedule-app/'
 export default defineConfig({
   plugins: [react()],
-  base: "/family-schedule-app/",
+  base: "/family-schedule-app-V3/",
 });
