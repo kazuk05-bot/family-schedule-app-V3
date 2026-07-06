@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { ChevronLeft, ChevronRight, Plus, Trash2, Clock, StickyNote, Loader2, Repeat } from "lucide-react";
 import { WEEKDAYS, RECUR_LABEL, sameDay, fmtMD } from "./dateUtils";
 
@@ -123,7 +123,6 @@ export default function ScheduleTab({
               </ul>
             )}
           </div>
-        </div>
       )}
     </>
   );
