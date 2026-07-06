@@ -1,9 +1,10 @@
 import React from "react";
-import { ChevronLeft, ChevronRight, Plus, Trash2, Clock, StickyNote, Loader2, Repeat } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, Trash2, Clock, StickyNote, Loader2, Repeat } from "lucide-react";
 import { WEEKDAYS, RECUR_LABEL, sameDay, fmtMD } from "./dateUtils";
 
 export default function ScheduleTab({
-  groupDoc, groupLoading, groupLoadError, currentMonth, goMonth, monthLabel, cells, selected, selectDay, today,
+  groupDoc, groupLoading, groupLoadError, currentMonth, goMonth, goWeek, monthLabel, cells, selected, selectDay, today,
+  calendarExpanded, setCalendarExpanded,
   eventsOn, isVisible, toggleFilter, memberOf, selectedLabel, selectedEvents, openAddModal, openEditModal, deleteEvent, setActiveTab,
 }) {
   if (groupLoadError) {
@@ -36,10 +37,17 @@ export default function ScheduleTab({
           ) : (
             <>
               <div className="mincho" style={{ fontSize: 13, color: "#8A8371", marginBottom: 10 }}>{groupDoc.name}</div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <button onClick={() => goMonth(-1)} className="focus-ring" aria-label="前の月" style={{ padding: 6, borderRadius: 999, border: "1px solid #DDD3BC", background: "#fff8ea", cursor: "pointer" }}><ChevronLeft size={18} color="#2B2A2E" /></button>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <button onClick={() => (calendarExpanded ? goMonth(-1) : goWeek(-1))} className="focus-ring" aria-label={calendarExpanded ? "前の月" : "前の週"} style={{ padding: 6, borderRadius: 999, border: "1px solid #DDD3BC", background: "#fff8ea", cursor: "pointer" }}><ChevronLeft size={18} color="#2B2A2E" /></button>
                 <div className="mincho" style={{ fontSize: 20, fontWeight: 700 }}>{monthLabel}</div>
-                <button onClick={() => goMonth(1)} className="focus-ring" aria-label="次の月" style={{ padding: 6, borderRadius: 999, border: "1px solid #DDD3BC", background: "#fff8ea", cursor: "pointer" }}><ChevronRight size={18} color="#2B2A2E" /></button>
+                <button onClick={() => (calendarExpanded ? goMonth(1) : goWeek(1))} className="focus-ring" aria-label={calendarExpanded ? "次の月" : "次の週"} style={{ padding: 6, borderRadius: 999, border: "1px solid #DDD3BC", background: "#fff8ea", cursor: "pointer" }}><ChevronRight size={18} color="#2B2A2E" /></button>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+                <button onClick={() => setCalendarExpanded((v) => !v)} className="focus-ring" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: "#8A8371", background: "none", border: "none", cursor: "pointer", padding: "3px 10px" }}>
+                  {calendarExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                  {calendarExpanded ? "週表示に戻す" : "月全体を表示"}
+                </button>
               </div>
 
               <div className="chip-scroll" style={{ display: "flex", gap: 6, marginBottom: 14, overflowX: "auto", paddingBottom: 2 }}>

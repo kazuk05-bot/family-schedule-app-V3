@@ -6,7 +6,7 @@ import GroupsTab from "./GroupsTab.jsx";
 import ScheduleTab from "./ScheduleTab.jsx";
 import OnboardModal from "./OnboardModal.jsx";
 import EventModal from "./EventModal.jsx";
-import { dateKey, parseDateKey, makeId, makeGroupCode, nextColor, occursOn, WEEKDAYS } from "./dateUtils";
+import { dateKey, parseDateKey, addDays, makeId, makeGroupCode, nextColor, occursOn, WEEKDAYS } from "./dateUtils";
 
 const PROFILE_KEY = "family-schedule-profile";
 
@@ -59,6 +59,7 @@ export default function App() {
   const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selected, setSelected] = useState(todayKey);
   const [filterIds, setFilterIds] = useState(null);
+  const [calendarExpanded, setCalendarExpanded] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -279,13 +280,30 @@ export default function App() {
     return arr;
   }, [currentMonth]);
 
+  // just the single week containing `selected` - used in the compact (collapsed) view
+  const weekCells = useMemo(() => {
+    const idx = cells.findIndex((c) => c.key === selected);
+    const start = idx === -1 ? 0 : idx - (idx % 7);
+    return cells.slice(start, start + 7);
+  }, [cells, selected]);
+
   const monthLabel = `${currentMonth.getFullYear()}年 ${currentMonth.getMonth() + 1}月`;
   function goMonth(delta) { setCurrentMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1)); }
+  function goWeek(delta) {
+    const d = addDays(parseDateKey(selected), delta * 7);
+    setSelected(dateKey(d));
+    if (d.getMonth() !== currentMonth.getMonth() || d.getFullYear() !== currentMonth.getFullYear()) {
+      setCurrentMonth(new Date(d.getFullYear(), d.getMonth(), 1));
+    }
+  }
   function selectDay(key, date) {
     setSelected(key);
     if (date.getMonth() !== currentMonth.getMonth() || date.getFullYear() !== currentMonth.getFullYear()) {
       setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1));
     }
+    // picking a date while browsing the full month collapses back down to the
+    // compact week view, handing most of the screen back to the event list
+    if (calendarExpanded) setCalendarExpanded(false);
   }
 
   function eventsOn(dateObj) {
@@ -388,8 +406,9 @@ export default function App() {
           ) : (
             <ScheduleTab
               groupDoc={groupDoc} groupLoading={groupLoading} groupLoadError={groupLoadError}
-              currentMonth={currentMonth} goMonth={goMonth} monthLabel={monthLabel}
-              cells={cells} selected={selected} selectDay={selectDay} today={today}
+              currentMonth={currentMonth} goMonth={goMonth} goWeek={goWeek} monthLabel={monthLabel}
+              calendarExpanded={calendarExpanded} setCalendarExpanded={setCalendarExpanded}
+              cells={calendarExpanded ? cells : weekCells} selected={selected} selectDay={selectDay} today={today}
               eventsOn={eventsOn} isVisible={isVisible} toggleFilter={toggleFilter} memberOf={memberOf}
               selectedLabel={selectedLabel} selectedEvents={selectedEvents}
               openAddModal={openAddModal} openEditModal={openEditModal} deleteEvent={deleteEvent}
