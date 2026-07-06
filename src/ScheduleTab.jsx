@@ -1,22 +1,21 @@
 import React from "react";
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, Trash2, Clock, StickyNote, Loader2, Repeat } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Trash2, Clock, StickyNote, Loader2, Repeat } from "lucide-react";
 import { WEEKDAYS, RECUR_LABEL, sameDay, fmtMD } from "./dateUtils";
 
 export default function ScheduleTab({
-  groupDoc, groupLoading, groupLoadError, currentMonth, goMonth, goWeek, monthLabel, cells, selected, selectDay, today,
-  calendarExpanded, setCalendarExpanded,
+  groupDoc, groupLoading, groupLoadError, currentMonth, goMonth, monthLabel, cells, selected, selectDay, today,
   eventsOn, isVisible, toggleFilter, memberOf, selectedLabel, selectedEvents, openAddModal, openEditModal, deleteEvent, setActiveTab,
 }) {
   if (groupLoadError) {
     return (
-      <div style={{ background: "#F6F1E4", borderRadius: "0 6px 6px 6px", padding: "32px 20px", textAlign: "center", color: "#8A8371", fontSize: 13.5, flex: 1 }}>
+      <div style={{ background: "#F6F1E4", borderRadius: "0 6px 6px 6px", padding: "32px 20px", textAlign: "center", color: "#8A8371", fontSize: 13.5 }}>
         このグループを読み込めませんでした。グループタブから開き直してください。
       </div>
     );
   }
   if (!groupDoc && !groupLoading) {
     return (
-      <div style={{ background: "#F6F1E4", borderRadius: "0 6px 6px 6px", padding: "32px 20px", textAlign: "center", flex: 1 }}>
+      <div style={{ background: "#F6F1E4", borderRadius: "0 6px 6px 6px", padding: "32px 20px", textAlign: "center" }}>
         <div style={{ color: "#6E6A5F", fontSize: 13.5, marginBottom: 12 }}>まだグループが選択されていません</div>
         <button onClick={() => setActiveTab("groups")} className="focus-ring" style={{ background: "#B33A3A", color: "#fff", border: "none", borderRadius: 999, padding: "9px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>グループタブへ</button>
       </div>
@@ -24,8 +23,8 @@ export default function ScheduleTab({
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
-      <div style={{ background: "#F6F1E4", borderRadius: "0 6px 6px 6px", boxShadow: "0 18px 40px rgba(0,0,0,0.35)", position: "relative", paddingLeft: 26, overflow: "hidden", flexShrink: 0 }}>
+    <>
+      <div style={{ background: "#F6F1E4", borderRadius: "0 6px 6px 6px", boxShadow: "0 18px 40px rgba(0,0,0,0.35)", position: "relative", paddingLeft: 26, overflow: "hidden" }}>
         <div aria-hidden="true" style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 26, backgroundColor: "#EAE1C9", borderRight: "1px dashed #C9BB98" }} />
         <div aria-hidden="true" style={{ position: "absolute", left: 6, top: 0, bottom: 0, width: 14, backgroundImage: "repeating-linear-gradient(to bottom, #232134 0px, #232134 6px, transparent 6px, transparent 26px)", backgroundSize: "6px 26px", opacity: 0.85, borderRadius: 3 }} />
 
@@ -37,17 +36,10 @@ export default function ScheduleTab({
           ) : (
             <>
               <div className="mincho" style={{ fontSize: 13, color: "#8A8371", marginBottom: 10 }}>{groupDoc.name}</div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                <button onClick={() => (calendarExpanded ? goMonth(-1) : goWeek(-1))} className="focus-ring" aria-label={calendarExpanded ? "前の月" : "前の週"} style={{ padding: 6, borderRadius: 999, border: "1px solid #DDD3BC", background: "#fff8ea", cursor: "pointer" }}><ChevronLeft size={18} color="#2B2A2E" /></button>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <button onClick={() => goMonth(-1)} className="focus-ring" aria-label="前の月" style={{ padding: 6, borderRadius: 999, border: "1px solid #DDD3BC", background: "#fff8ea", cursor: "pointer" }}><ChevronLeft size={18} color="#2B2A2E" /></button>
                 <div className="mincho" style={{ fontSize: 20, fontWeight: 700 }}>{monthLabel}</div>
-                <button onClick={() => (calendarExpanded ? goMonth(1) : goWeek(1))} className="focus-ring" aria-label={calendarExpanded ? "次の月" : "次の週"} style={{ padding: 6, borderRadius: 999, border: "1px solid #DDD3BC", background: "#fff8ea", cursor: "pointer" }}><ChevronRight size={18} color="#2B2A2E" /></button>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
-                <button onClick={() => setCalendarExpanded((v) => !v)} className="focus-ring" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: "#8A8371", background: "none", border: "none", cursor: "pointer", padding: "3px 10px" }}>
-                  {calendarExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                  {calendarExpanded ? "週表示に戻す" : "月全体を表示"}
-                </button>
+                <button onClick={() => goMonth(1)} className="focus-ring" aria-label="次の月" style={{ padding: 6, borderRadius: 999, border: "1px solid #DDD3BC", background: "#fff8ea", cursor: "pointer" }}><ChevronRight size={18} color="#2B2A2E" /></button>
               </div>
 
               <div className="chip-scroll" style={{ display: "flex", gap: 6, marginBottom: 14, overflowX: "auto", paddingBottom: 2 }}>
@@ -72,7 +64,7 @@ export default function ScheduleTab({
                   const dayEvents = eventsOn(date);
                   const weekday = date.getDay();
                   return (
-                    <button key={key} onClick={() => selectDay(key, date)} className="day-cell focus-ring" style={{ aspectRatio: "1 / 1", minHeight: 40, borderRadius: 5, border: isSelected ? "1.5px solid #C8963E" : "1px solid #E7DEC7", background: isSelected ? "#FCF3DC" : inMonth ? "#FFFDF7" : "#F1EBDC", opacity: inMonth ? 1 : 0.55, position: "relative", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "4px 2px 3px" }}>
+                    <button key={key} onClick={() => selectDay(key, date)} className="day-cell focus-ring" style={{ aspectRatio: "1 / 1", minHeight: 46, borderRadius: 5, border: isSelected ? "1.5px solid #C8963E" : "1px solid #E7DEC7", background: isSelected ? "#FCF3DC" : inMonth ? "#FFFDF7" : "#F1EBDC", opacity: inMonth ? 1 : 0.55, position: "relative", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "4px 2px 3px" }}>
                       <span className={isToday ? "stamp-ring" : ""} style={{ fontSize: 12.5, fontWeight: isToday ? 800 : 500, width: 20, height: 20, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: isToday ? "#B33A3A" : weekday === 0 ? "#B33A3A" : weekday === 6 ? "#3B5E7A" : "#2B2A2E" }}>{date.getDate()}</span>
                       <div style={{ display: "flex", gap: 2, marginTop: 3, flexWrap: "wrap", justifyContent: "center", maxWidth: "100%" }}>
                         {dayEvents.slice(0, 4).map((e) => (<span key={e.id} style={{ width: 5, height: 5, borderRadius: "50%", background: memberOf(e.memberId).color, display: "inline-block" }} />))}
@@ -88,17 +80,16 @@ export default function ScheduleTab({
       </div>
 
       {!groupLoading && (
-        <div style={{ background: "#FFFDF7", borderRadius: 6, marginTop: 14, boxShadow: "0 10px 26px rgba(0,0,0,0.28)", display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px 12px", flexShrink: 0 }}>
+        <div style={{ background: "#FFFDF7", borderRadius: 6, marginTop: 14, boxShadow: "0 10px 26px rgba(0,0,0,0.28)", padding: "18px 20px 20px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <div className="mincho" style={{ fontSize: 17, fontWeight: 700 }}>{selectedLabel}</div>
             <button onClick={openAddModal} className="focus-ring" disabled={groupDoc.members.length === 0} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "#fff", background: groupDoc.members.length === 0 ? "#D8B9B9" : "#B33A3A", border: "none", borderRadius: 999, padding: "7px 14px", cursor: groupDoc.members.length === 0 ? "not-allowed" : "pointer" }}><Plus size={15} /> 予定を追加</button>
           </div>
 
-          <div className="list-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 20px 18px" }}>
-            {groupDoc.members.length === 0 ? (
-              <div style={{ color: "#8A8371", fontSize: 13.5, padding: "18px 4px", textAlign: "center", border: "1px dashed #E2D8BE", borderRadius: 6 }}>グループタブからメンバーを追加してください</div>
-            ) : selectedEvents.length === 0 ? (
-              <div style={{ color: "#8A8371", fontSize: 13.5, padding: "18px 4px", textAlign: "center", border: "1px dashed #E2D8BE", borderRadius: 6 }}>この日の予定はありません</div>
+          {groupDoc.members.length === 0 ? (
+            <div style={{ color: "#8A8371", fontSize: 13.5, padding: "18px 4px", textAlign: "center", border: "1px dashed #E2D8BE", borderRadius: 6 }}>グループタブからメンバーを追加してください</div>
+          ) : selectedEvents.length === 0 ? (
+            <div style={{ color: "#8A8371", fontSize: 13.5, padding: "18px 4px", textAlign: "center", border: "1px dashed #E2D8BE", borderRadius: 6 }}>この日の予定はありません</div>
             ) : (
               <ul style={{ display: "flex", flexDirection: "column", gap: 8, margin: 0, padding: 0, listStyle: "none" }}>
                 {selectedEvents.map((ev) => {
@@ -134,6 +125,6 @@ export default function ScheduleTab({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

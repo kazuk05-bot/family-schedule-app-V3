@@ -11,8 +11,8 @@ export default function GroupsTab({
   newMemberName, setNewMemberName, addMember, deleteMember,
 }) {
   return (
-    <div style={{ background: "#F6F1E4", borderRadius: "0 6px 6px 6px", boxShadow: "0 18px 40px rgba(0,0,0,0.35)", display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
-      <div style={{ display: "flex", gap: 8, padding: "20px 20px 16px", flexShrink: 0 }}>
+    <div style={{ background: "#F6F1E4", borderRadius: "0 6px 6px 6px", boxShadow: "0 18px 40px rgba(0,0,0,0.35)", padding: "20px 20px 22px" }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <button onClick={() => setCreateOpen(true)} className="focus-ring" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "#B33A3A", color: "#fff", border: "none", borderRadius: 6, padding: "10px 0", fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}>
           <Plus size={15} /> グループを作成
         </button>
@@ -21,14 +21,13 @@ export default function GroupsTab({
         </button>
       </div>
 
-      <div className="list-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 20px 20px" }}>
-        <div className="mincho" style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>参加中のグループ</div>
-        {profile.myGroups.length === 0 ? (
-          <div style={{ color: "#8A8371", fontSize: 13.5, padding: "18px 4px", textAlign: "center", border: "1px dashed #E2D8BE", borderRadius: 6 }}>
-            まだグループがありません。作成するか、招待コードで参加してください
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div className="mincho" style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>参加中のグループ</div>
+      {profile.myGroups.length === 0 ? (
+        <div style={{ color: "#8A8371", fontSize: 13.5, padding: "18px 4px", textAlign: "center", border: "1px dashed #E2D8BE", borderRadius: 6 }}>
+          まだグループがありません。作成するか、招待コードで参加してください
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {profile.myGroups.map((g) => {
             const isActive = g.id === profile.activeGroupId;
             return (
@@ -83,7 +82,6 @@ export default function GroupsTab({
           })}
         </div>
       )}
-      </div>
 
       {createOpen && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(20,18,30,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, zIndex: 55 }} onClick={() => setCreateOpen(false)}>

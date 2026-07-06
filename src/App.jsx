@@ -6,7 +6,7 @@ import GroupsTab from "./GroupsTab.jsx";
 import ScheduleTab from "./ScheduleTab.jsx";
 import OnboardModal from "./OnboardModal.jsx";
 import EventModal from "./EventModal.jsx";
-import { dateKey, parseDateKey, addDays, makeId, makeGroupCode, nextColor, occursOn, WEEKDAYS } from "./dateUtils";
+import { dateKey, parseDateKey, makeId, makeGroupCode, nextColor, occursOn, WEEKDAYS } from "./dateUtils";
 
 const PROFILE_KEY = "family-schedule-profile";
 
@@ -59,7 +59,6 @@ export default function App() {
   const [currentMonth, setCurrentMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selected, setSelected] = useState(todayKey);
   const [filterIds, setFilterIds] = useState(null);
-  const [calendarExpanded, setCalendarExpanded] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -270,7 +269,8 @@ export default function App() {
     const month = currentMonth.getMonth();
     const firstOfMonth = new Date(year, month, 1);
     const startOffset = firstOfMonth.getDay();
-    const totalCells = 42; // always exactly 6 rows so the grid height never jumps between months
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
     const arr = [];
     for (let i = 0; i < totalCells; i++) {
       const dayNum = i - startOffset + 1;
@@ -280,30 +280,13 @@ export default function App() {
     return arr;
   }, [currentMonth]);
 
-  // just the single week containing `selected` - used in the compact (collapsed) view
-  const weekCells = useMemo(() => {
-    const idx = cells.findIndex((c) => c.key === selected);
-    const start = idx === -1 ? 0 : idx - (idx % 7);
-    return cells.slice(start, start + 7);
-  }, [cells, selected]);
-
   const monthLabel = `${currentMonth.getFullYear()}年 ${currentMonth.getMonth() + 1}月`;
   function goMonth(delta) { setCurrentMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1)); }
-  function goWeek(delta) {
-    const d = addDays(parseDateKey(selected), delta * 7);
-    setSelected(dateKey(d));
-    if (d.getMonth() !== currentMonth.getMonth() || d.getFullYear() !== currentMonth.getFullYear()) {
-      setCurrentMonth(new Date(d.getFullYear(), d.getMonth(), 1));
-    }
-  }
   function selectDay(key, date) {
     setSelected(key);
     if (date.getMonth() !== currentMonth.getMonth() || date.getFullYear() !== currentMonth.getFullYear()) {
       setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1));
     }
-    // picking a date while browsing the full month collapses back down to the
-    // compact week view, handing most of the screen back to the event list
-    if (calendarExpanded) setCalendarExpanded(false);
   }
 
   function eventsOn(dateObj) {
@@ -361,9 +344,9 @@ export default function App() {
   }
 
   return (
-    <div style={{ height: "100dvh", overflow: "hidden", background: "#232134", backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.03), transparent 40%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.025), transparent 45%)", fontFamily: "'Noto Sans JP', sans-serif", color: "#2B2A2E", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100dvh", background: "#232134", backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.03), transparent 40%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.025), transparent 45%)", fontFamily: "'Noto Sans JP', sans-serif", color: "#2B2A2E", padding: "24px 12px 60px", overflowX: "hidden" }}>
       <style>{`
-        html, body { margin: 0; overflow: hidden; -webkit-text-size-adjust: 100%; }
+        html, body { margin: 0; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
         *, *::before, *::after { box-sizing: border-box; }
         .mincho { font-family: 'Shippori Mincho', serif; }
         .stamp-ring { box-shadow: 0 0 0 1.5px #B33A3A, 0 0 0 4px rgba(179,58,58,0.15); }
@@ -371,18 +354,16 @@ export default function App() {
         .focus-ring:focus-visible { outline: 2px solid #C8963E; outline-offset: 2px; }
         .chip-scroll::-webkit-scrollbar { height: 5px; }
         .chip-scroll::-webkit-scrollbar-thumb { background: #DCD2B8; border-radius: 4px; }
-        .list-scroll::-webkit-scrollbar { width: 5px; }
-        .list-scroll::-webkit-scrollbar-thumb { background: #DCD2B8; border-radius: 4px; }
         input, select, textarea { font-size: 16px !important; }
       `}</style>
 
-      <div style={{ maxWidth: 880, width: "100%", margin: "0 auto", padding: "24px 12px 12px", display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 6, padding: "0 6px", flexShrink: 0 }}>
+      <div style={{ maxWidth: 880, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 6, padding: "0 6px" }}>
           <h1 className="mincho" style={{ color: "#F6F1E4", fontSize: 26, fontWeight: 800, letterSpacing: "0.04em" }}>予定手帳</h1>
           <span style={{ color: "#C8963E", fontSize: 12, letterSpacing: "0.15em" }}>SCHEDULE&nbsp;DIARY</span>
         </div>
 
-        <div style={{ display: "flex", gap: 6, padding: "0 6px", marginBottom: 12, flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 6, padding: "0 6px", marginBottom: 12 }}>
           {[{ key: "groups", label: "グループ", icon: Users }, { key: "schedule", label: "予定表", icon: CalendarDays }].map((t) => {
             const Icon = t.icon;
             const on = activeTab === t.key;
@@ -394,30 +375,27 @@ export default function App() {
           })}
         </div>
 
-        <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          {activeTab === "groups" ? (
-            <GroupsTab
-              profile={profile} groupDoc={groupDoc} myId={myId}
-              createOpen={createOpen} setCreateOpen={setCreateOpen} createName={createName} setCreateName={setCreateName} createGroup={createGroup} creating={creating} createError={createError}
-              joinOpen={joinOpen} setJoinOpen={setJoinOpen} joinCode={joinCode} setJoinCode={setJoinCode} joinError={joinError} joinGroup={joinGroup} joining={joining}
-              selectGroup={selectGroup} leaveGroup={leaveGroup} copyCode={copyCode} copiedCode={copiedCode}
-              newMemberName={newMemberName} setNewMemberName={setNewMemberName} addMember={addMember} deleteMember={deleteMember}
-            />
-          ) : (
-            <ScheduleTab
-              groupDoc={groupDoc} groupLoading={groupLoading} groupLoadError={groupLoadError}
-              currentMonth={currentMonth} goMonth={goMonth} goWeek={goWeek} monthLabel={monthLabel}
-              calendarExpanded={calendarExpanded} setCalendarExpanded={setCalendarExpanded}
-              cells={calendarExpanded ? cells : weekCells} selected={selected} selectDay={selectDay} today={today}
-              eventsOn={eventsOn} isVisible={isVisible} toggleFilter={toggleFilter} memberOf={memberOf}
-              selectedLabel={selectedLabel} selectedEvents={selectedEvents}
-              openAddModal={openAddModal} openEditModal={openEditModal} deleteEvent={deleteEvent}
-              setActiveTab={setActiveTab}
-            />
-          )}
-        </div>
+        {activeTab === "groups" ? (
+          <GroupsTab
+            profile={profile} groupDoc={groupDoc} myId={myId}
+            createOpen={createOpen} setCreateOpen={setCreateOpen} createName={createName} setCreateName={setCreateName} createGroup={createGroup} creating={creating} createError={createError}
+            joinOpen={joinOpen} setJoinOpen={setJoinOpen} joinCode={joinCode} setJoinCode={setJoinCode} joinError={joinError} joinGroup={joinGroup} joining={joining}
+            selectGroup={selectGroup} leaveGroup={leaveGroup} copyCode={copyCode} copiedCode={copiedCode}
+            newMemberName={newMemberName} setNewMemberName={setNewMemberName} addMember={addMember} deleteMember={deleteMember}
+          />
+        ) : (
+          <ScheduleTab
+            groupDoc={groupDoc} groupLoading={groupLoading} groupLoadError={groupLoadError}
+            currentMonth={currentMonth} goMonth={goMonth} monthLabel={monthLabel}
+            cells={cells} selected={selected} selectDay={selectDay} today={today}
+            eventsOn={eventsOn} isVisible={isVisible} toggleFilter={toggleFilter} memberOf={memberOf}
+            selectedLabel={selectedLabel} selectedEvents={selectedEvents}
+            openAddModal={openAddModal} openEditModal={openEditModal} deleteEvent={deleteEvent}
+            setActiveTab={setActiveTab}
+          />
+        )}
 
-        {saveError && <div style={{ color: "#F0B4B4", fontSize: 12, textAlign: "center", padding: "6px 0", flexShrink: 0 }}>保存に失敗しました。通信環境をご確認のうえ、もう一度お試しください。</div>}
+        {saveError && <div style={{ color: "#F0B4B4", fontSize: 12, textAlign: "center", marginTop: 10 }}>保存に失敗しました。通信環境をご確認のうえ、もう一度お試しください。</div>}
       </div>
 
       {onboardOpen && groupDoc && (
